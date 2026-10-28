@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Beeyo</title>
+  <meta name="description" content="Open this product in the Beeyo app.">
+  <meta property="og:title" content="Check this out on Beeyo">
+  <meta property="og:description" content="Tap to open in the Beeyo app.">
+  <style>
+    :root { --green: #3DAA5C; --text: #1f1f1f; --muted: #6B6B6B; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; display: flex; align-items: center;
+      justify-content: center; padding: 24px 16px; background: #fff;
+      color: var(--text); text-align: center;
+      font-family: Poppins, system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    main { width: 100%; max-width: 360px; }
+    .logo {
+      width: 72px; height: 72px; margin: 0 auto 20px; border-radius: 20px;
+      background: var(--green); color: #fff; font-size: 34px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+    }
+    h1 { font-size: 22px; margin: 0 0 8px; }
+    p { color: var(--muted); font-size: 14px; line-height: 1.5; margin: 0 0 28px; }
+    a.btn {
+      display: block; padding: 14px; border-radius: 12px; margin-bottom: 12px;
+      font-weight: 700; font-size: 15px; text-decoration: none;
+    }
+    .primary { background: var(--green); color: #fff; }
+    .secondary { border: 1.5px solid var(--green); color: var(--green); }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="logo">B</div>
+    <h1>Opening Beeyo…</h1>
+    <p id="hint">If the app doesn't open, tap below. Don't have it yet? Get it from Google Play.</p>
+    <a class="btn primary" id="open" href="#">Open in Beeyo</a>
+    <a class="btn secondary" id="install" href="#">Get it on Google Play</a>
+  </main>
+  <script>
+    (function () {
+      var PKG = 'com.beeyo.customer';
+      var params = new URLSearchParams(location.search);
+      var id = params.get('id') || '';
+      // Ids are uuids/slugs; anything else is dropped rather than passed on.
+      if (!/^[A-Za-z0-9_-]{1,64}$/.test(id)) id = '';
+
+      var store = 'https://play.google.com/store/apps/details?id=' + PKG +
+        '&referrer=' + encodeURIComponent('product_id=' + id);
+      var path = id ? 'product/' + id : 'product';
+
+      var openBtn = document.getElementById('open');
+      var installBtn = document.getElementById('install');
+      installBtn.href = store;
+
+      if (/android/i.test(navigator.userAgent)) {
+        // Chrome (and in-app browsers built on it) open the app when it's
+        // installed and go to browser_fallback_url, the Play Store, when not.
+        var intent = 'intent://' + path + '#Intent;scheme=beeyo;package=' + PKG +
+          ';S.browser_fallback_url=' + encodeURIComponent(store) + ';end';
+        openBtn.href = intent;
+        location.replace(intent);
+      } else {
+        // No iOS build yet; desktop can't open the app either.
+        openBtn.href = 'beeyo://' + path;
+        document.querySelector('h1').textContent = 'Beeyo is on Android';
+        document.getElementById('hint').textContent =
+          'Open this link on your Android phone to see the product in the Beeyo app.';
+      }
+    })();
+  </script>
+</body>
+</html>
